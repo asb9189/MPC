@@ -71,29 +71,33 @@ def start_protocol():
             continue
 
         if index == len(net.hosts) - 2:
-            p.sendCmd(command.format(p.name, num_ports));
+            p.sendCmd(command.format(p.name, num_ports))
 
             print("Started all parties\n")
             for m in (net.hosts):
                 print(m.waitOutput());
 
         else:
-            p.sendCmd(command.format(p.name, num_ports));
+            p.sendCmd(command.format(p.name, num_ports))
 
         index += 1;
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description=None);
-    parser.add_argument("-p", "--parties", action="store", required=True, type=int, help="number of parties");
-    parser.add_argument("-n", "--ports", action="store", required=True, type=int, help="number of ports");
-    args = parser.parse_args();
-    num_nodes = args.parties;
+    parser = argparse.ArgumentParser(description=None)
+    parser.add_argument("-p", "--parties", action="store", required=True, type=int, help="number of parties")
+    parser.add_argument("-n", "--ports", action="store", default=10, type=int, help="number of ports")
+    args = parser.parse_args()
+    num_nodes = args.parties
     num_ports = args.ports
 
     if num_nodes <= 1:
-        print("Error: Illegal Number of Parties {}".format(num_nodes))
+        print("Illegal Number of Parties: {}".format(num_nodes))
         sys.exit()
+    if num_ports < 1:
+        print("Illegal Number of Ports: {}".format(num_ports))
+        sys.exit()
+
     print("Running generate.py -p{}".format(num_nodes))
     subprocess.Popen(["sudo", "python3", "generate.py", "-p{}".format(num_nodes)]).wait()
     print("Finished generating config files")
