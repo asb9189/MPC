@@ -5,9 +5,9 @@ A mininet simulation to showcase MPC with a large number of parties following th
 
 ### Prerequisites
 
-* Python3 (Python 3.8 Was Used)
+* Python3 (Python 3.8 was used)
 
-* Pip3
+* Pip3 (used to install missing packages. Example: pip3 install pynacl)
 
 * Mininet
 
