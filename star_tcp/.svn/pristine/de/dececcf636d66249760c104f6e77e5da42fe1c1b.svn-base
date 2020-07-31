@@ -1,0 +1,144 @@
+from node import Node
+import time
+import json
+import select
+import collections
+import threading
+import sys
+
+# import constants
+from constants import FORMAT
+
+class CentralServer(Node):
+    def __init__(self, host, port):
+        super().__init__(True, host, port)
+
+        # node id counter to keep track of node id's
+        self.id_counter = 0
+
+        # message dictionary to package all messages together for a node.
+        self.message_collector = {}
+
+        # dictionary mapping id numbers to addresses.
+        self.id_table = {}
+
+        # dictionary that maps addresses to id numbers.
+        self.addr_table = {}
+
+        # how many messages received at each round
+        self.progress = collections.defaultdict(int)
+
+        event_loop = threading.Thread(target = self.server_loop)
+        event_loop.daemon = True
+        event_loop.start()
+
+    def server_loop(self):
+        bufs = collections.defaultdict(str)
+
+        start = time.time()
+        while True:
+            reader, writer, errors = select.select(self.inbound_connections,
+                                                   self.inbound_connections,
+                                                   self.inbound_connections, 60)
+            # once the first node is connected start a 2 second timer. If another node creates a
+            # connection reset the timer until the timer expires then all nodes are connected.
+            if time.time() - start < 2 or len(self.inbound_connections) - 1 == 0:
+                for sock in reader:
+                    if sock is self.sock:
+                        conn, addr = sock.accept()
+                        conn.setblocking(0)
+                        self.inbound_connections.append(conn)
+                        start = time.time()
+            # all nodes are connected so start reading data.
+            else:
+                for sock in reader:
+                    if sock is not self.sock:
+                        data = sock.recv(65507)
+                        bufs[sock] += data.decode(FORMAT)
+
+            for sock in errors:
+                self.inbound_connections.remove(sock)
+                if sock in self.outbound_connections:
+                    self.outbound_connections.remove(sock)
+                sock.close()
+
+            for sock, buf in bufs.items():
+                lines = buf.split('\n')
+                bufs[sock] = lines[-1]
+                for l in lines[:-1]:
+                    self.receive(json.loads(l), sock)
+
+    def receive(self, msg, sock):
+        self.progress[msg['round']] += 1
+
+        if msg['round'] == 0:
+
+            #server reads our index
+            index = msg['message']
+            #print("index: " + str(index))
+
+            # this should always be here inside of receive.
+            # set up the dictionary that will package the messages for the nodes.
+            # send the node its id number as well as how many parties are connected to the server.
+            self.message_collector[index] = {'round' : 0, 'message': index, 'num_parties' : len(self.inbound_connections) - 1}
+            self.id_table[index] = sock.getpeername()
+            self.addr_table[sock.getpeername()] = index #used to be self.id_counter
+            #self.id_counter += 1
+            self.recv_count += 1
+            if self.recv_count == len(self.inbound_connections) - 1: # ... == len(self.inbound_connections)
+                for i in self.inbound_connections[1:]:
+                    msg = self.message_collector[self.addr_table[i.getpeername()]]
+                    self.send_message(msg, conn = i)
+                    self.send_count += 1
+                    #print(f"Server: {self.message_collector[self.addr_table[i.getpeername()]]}")
+                    #print(f"Server Addr Tablel: {self.addr_table}")
+                    #print(f"Server list: {ip_list}")
+
+        # server is only responsible for packaging and sending messages to the proper parties.
+        # add rounds assciated with the messages being sent back.
+        elif msg['round'] > 0:
+            for key in self.message_collector:
+                # make sure we do not receive a share from ourselves.
+                if key != self.addr_table[sock.getpeername()]:
+                    #print(key, self.addr_table[sock.getpeername()])
+                    self.message_collector[key]['message'] += str(msg['message'][key]) + '\n'
+            self.recv_count += 1
+            if self.recv_count == len(self.inbound_connections) - 1: 
+                for i in self.inbound_connections[1:]:
+                    start_net = time.time()
+                    self.send_message(self.message_collector[self.addr_table[i.getpeername()]], conn = i)
+                    # only increment the counter when we send all the messages intended for the node.
+                    self.send_count += 1
+
+        if self.recv_count == len(self.inbound_connections) - 1 and self.send_count == len(self.inbound_connections) - 1:
+            if self.round_num == 1: #What is the last round
+                self.is_done = True
+            else:
+                self.round_num += 1
+                for key in self.message_collector:
+                    self.message_collector[key]['round'] += 1
+                    self.message_collector[key]['message'] = ''
+                    if self.round_num == 1:
+                        del self.message_collector[key]['num_parties']
+                self.recv_count = 0
+                self.send_count = 0
+
+start2 = time.time()
+server = CentralServer(host = '0.0.0.0', port = 8700)
+try:
+    errorTime = time.time()
+    while True:
+
+        #if (time.time() - errorTime) > 30:
+            #print("An Error Has Occured")
+            #sys.exit()
+
+        time.sleep(1)
+        #print('connections:', len(server.inbound_connections),
+              #'progress:', str(dict(server.progress))[-70:])
+        if server.is_done == True:
+            print(f'Overall it took {time.time() - start2} seconds')
+            sys.exit()
+except Exception:
+    print('There was an eror after {time.time() - start2} seconds')
+
