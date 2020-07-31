@@ -1,3 +1,14 @@
+
+#Author: Aleksei Bingham
+
+'''
+simulation.py creates p number of parties (mininet hosts)
+with an extra host being created and treated as the centeral server. All nodes
+are directly connected to this centeral server and once all connections are establed
+start_protocol() is called.
+'''
+
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -11,9 +22,10 @@ import time
 import sys
 
 
-# Try to ping:
-# node -> server
-# server -> node
+#Try to ping:
+#node -> server
+#server -> node
+#only used for testing
 def ping_all():
 
     server = net.hosts[len(net.hosts) - 1]
@@ -51,6 +63,10 @@ def ping_all():
         output('\n')
         server_index += 1
 
+#after generate.py is executed the server is started up. After sleeping for 5 seconds
+#each node executes summation.py -H[Hostname] -P[number of parties].
+#We then wait for all party members to finish computation before ending the simulation
+#printing both party and server output.
 def start_protocol():
 
     print("Starting Server")

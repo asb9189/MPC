@@ -1,3 +1,13 @@
+
+#Author: Aleksei Bingham
+
+'''
+summation.py is the client side script used per party member.
+First the party member creates a node object, generates a random int value and
+encrypts this value for all other party members. This node then sends the shares
+to the centeral server and waits until it completes n rounds.
+'''
+
 import netifaces as ni
 from node import Node
 from ast import literal_eval
@@ -20,6 +30,7 @@ from nacl.encoding import Base64Encoder
 
 NUM_ROUNDS = 1
 
+#use our hostnae to determine our IP on the network
 def get_ip(hostname):
 
     ni.ifaddresses(hostname + '-eth0')
@@ -55,6 +66,7 @@ class ClientNode(Node):
                     self.recv_count = 0
                     self.send_count = 0
 
+#decrpyt the given data using our private key and the 'senders' public key
 def decrypt(data):
 
     num = literal_eval(data)
@@ -64,6 +76,8 @@ def decrypt(data):
     input = int.from_bytes(msg, "big")
     return input
 
+#read from command line and config.ini file to gather all information needed
+#prior to executing the protocol.
 def get_args():
 
     parser = argparse.ArgumentParser(description=None);
@@ -114,6 +128,10 @@ def get_args():
 
     return my_ip, my_port, parties, keys, private_key, indexes, num_ports
 
+#create an array of length parties such that each index is an encrypted version
+#of our randomly generated input. Each index corresponds to the party ID. For example
+#index 0 is the party who holds ID 0. Knowing this, we MUST encrypt value at index 0 with
+#the party member's public key who also holds ID 0.
 def build_message():
 
     msg = [-1 for i in range(len(parties))]
@@ -135,15 +153,7 @@ def build_message():
 
     return msg
 
-
-
 my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
-#print(f"my_ip: {my_ip}")
-#print(f"my_port: {my_port}")
-#print(f"parties: {parties}")
-#print(f"keys: {keys}")
-#print(f"private_key: {private_key}")
-#print(f"indexes: {indexes}")
 
 server_ip = str(ipaddress.ip_address(my_ip) + 1)
 server_port = 8765 + (my_port % num_ports)
@@ -152,6 +162,8 @@ client = ClientNode(my_ip, my_port)
 
 value = random.randint(1, 10)
 #shares = [1 for i in range(len(parties))] # this is only for testing
+
+#add our own value prior to receiving others to get a true total sum.
 client.r1_sum += value
 my_message = build_message()
 print(f"My Value: {value}")
@@ -159,17 +171,11 @@ print(f"My Value: {value}")
 start = time.time()
 try:
 
-    #time.sleep(random.randint(0, 2)) an attempt to make connection to server faster
-
     #Connect to server
-    #start_connecting = time.time()
     client.connect_to_node(server)
-    #print(f"Connected to server in {time.time() - start_connecting} seconds")
 
     # round 0 getting id numbers
-    s = time.time()
     client.send_message({'round' : 0, 'message' : indexes[my_ip]}, addr = server)
-    print(f"I sent round 0 in {time.time() - s} seconds")
 
     # Wait until everyone is done
     while client.round_num < NUM_ROUNDS + 1:
