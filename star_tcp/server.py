@@ -8,9 +8,6 @@ import threading
 import sys
 import socket
 
-# import constants
-from constants import FORMAT
-
 parser = argparse.ArgumentParser(description=None);
 parser.add_argument("-H", "--hosts", action="store", required=True, type=int, help="number of parties");
 parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="number of open ports");
@@ -83,7 +80,7 @@ class CentralServer(Node):
                     # the first 10 sockets in the list are the listeners
                     if sock not in self.inbound_connections[:NUM_PORTS]:
                         data = sock.recv(65507)
-                        bufs[sock] += data.decode(FORMAT)
+                        bufs[sock] += data.decode('utf-8')
 
             for sock in errors:
                 self.inbound_connections.remove(sock)

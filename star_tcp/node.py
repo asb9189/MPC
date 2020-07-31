@@ -7,9 +7,6 @@ import threading
 import time
 import collections
 
-# import the neccessary variables from the constants file
-from constants import FORMAT
-
 class Node():
 
     def __init__(self, server, host = None, port = None):
@@ -75,7 +72,7 @@ class Node():
             for sock in reader:
                 data = sock.recv(65507)
                 self.recv_count += 1
-                bufs[sock] += data.decode(FORMAT)
+                bufs[sock] += data.decode('utf-8')
 
             for sock in errors:
                 self.inbound_connections.remove(sock)
@@ -122,7 +119,7 @@ class Node():
     def send_message(self, msg, addr = None, conn = None):
 
         msg = json.dumps(msg)+'\n'
-        message = msg.encode(FORMAT)
+        message = msg.encode('utf-8')
 
         # if we are the client just send the message
         if self.is_server == False:
