@@ -101,6 +101,7 @@ class Node():
                     total = time.time() - start
                     print(f"Connected in {total:.5f} seconds")
                 except Exception as e:
+                    time.sleep(1)
                     continue
                 break
 

@@ -13,7 +13,7 @@ parser.add_argument("-H", "--hosts", action="store", required=True, type=int, he
 parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="number of open ports");
 args = parser.parse_args();
 
-NUM_ROUNDS = 1
+NUM_ROUNDS = 5
 NUM_PARTIES = args.hosts
 NUM_PORTS = args.ports
 
@@ -69,7 +69,7 @@ class CentralServer(Node):
                             time_started = True
                         conn.setblocking(0)
                         self.inbound_connections.append(conn)
-                        self.connections += 1 #I added this
+                        self.connections += 1
 
             # all nodes are connected so start reading data.
             else:
@@ -143,8 +143,7 @@ start2 = time.time()
 server = CentralServer(host = '0.0.0.0', port = 8765)
 try:
     while True:
-        #time.sleep(1)
-        #print(len(server.inbound_connections) - 10)
+        time.sleep(1) #increases performance of server
         if server.is_done == True:
             print(f'Overall it took {time.time() - start2} seconds')
             sys.exit()

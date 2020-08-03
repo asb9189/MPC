@@ -28,7 +28,7 @@ import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
 from nacl.encoding import Base64Encoder
 
-NUM_ROUNDS = 1
+NUM_ROUNDS = 5
 
 #use our hostnae to determine our IP on the network
 def get_ip(hostname):
@@ -161,10 +161,11 @@ server = (server_ip, server_port)
 client = ClientNode(my_ip, my_port)
 
 value = random.randint(1, 10)
+#value = 1
 #shares = [1 for i in range(len(parties))] # this is only for testing
 
 #add our own value prior to receiving others to get a true total sum.
-client.r1_sum += value
+client.r1_sum += value * NUM_ROUNDS
 my_message = build_message()
 print(f"My Value: {value}")
 
@@ -179,6 +180,7 @@ try:
 
     # Wait until everyone is done
     while client.round_num < NUM_ROUNDS + 1:
+        time.sleep(1)
         continue
 
     print(f'{my_ip} sum : {client.r1_sum}')
