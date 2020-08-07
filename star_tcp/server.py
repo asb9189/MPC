@@ -8,16 +8,12 @@ import threading
 import sys
 import socket
 
-parser = argparse.ArgumentParser(description=None);
-parser.add_argument("-H", "--hosts", action="store", required=True, type=int, help="number of parties");
-parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="number of open ports");
-args = parser.parse_args();
-
-NUM_ROUNDS = 5
-NUM_PARTIES = args.hosts
-NUM_PORTS = args.ports
+NUM_PORTS = None
+NUM_PARTIES = None
+NUM_ROUNDS = None
 
 class CentralServer(Node):
+
     def __init__(self, host, port):
         super().__init__(True, host, port)
 
@@ -139,13 +135,32 @@ class CentralServer(Node):
                 self.recv_count = 0
                 self.send_count = 0
 
-start2 = time.time()
-server = CentralServer(host = '0.0.0.0', port = 8765)
-try:
-    while True:
-        time.sleep(1) #increases performance of server
-        if server.is_done == True:
-            print(f'Overall it took {time.time() - start2} seconds')
-            sys.exit()
-except Exception:
-    print(f'There was an eror after {time.time() - start2} seconds')
+def main():
+
+    parser = argparse.ArgumentParser(description=None);
+    parser.add_argument("-H", "--hosts", action="store", required=True, type=int, help="number of parties");
+    parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="number of open ports");
+    args = parser.parse_args();
+
+    global NUM_ROUNDS
+    NUM_ROUNDS = 1
+
+    global NUM_PARTIES
+    NUM_PARTIES = args.hosts
+
+    global NUM_PORTS
+    NUM_PORTS = args.ports
+
+    start2 = time.time()
+    server = CentralServer(host = '0.0.0.0', port = 8765)
+    try:
+        while True:
+            time.sleep(1) #increases performance of server
+            if server.is_done == True:
+                print(f'Overall it took {time.time() - start2} seconds')
+                sys.exit()
+    except Exception:
+        print(f'There was an eror after {time.time() - start2} seconds')
+
+if __name__ == '__main__':
+    main()

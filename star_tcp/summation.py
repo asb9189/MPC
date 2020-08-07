@@ -28,47 +28,61 @@ import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
 from nacl.encoding import Base64Encoder
 
-NUM_ROUNDS = 5
+
+NUM_ROUNDS = 1
 
 #use our hostnae to determine our IP on the network
 def get_ip(hostname):
+    """Returns the IPv4 address of host machine given it's desired interface hostname"""
 
     ni.ifaddresses(hostname + '-eth0')
     return ni.ifaddresses(hostname + '-eth0')[ni.AF_INET][0]['addr']
 
 class ClientNode(Node):
-    def __init__(self, host, port):
+    def __init__(self, host, port, parties, keys, private_key, indexes, message, server):
         super().__init__(False, host, port)
         self.r1_sum = 0
         self.r2_sum = 0
         self.r3_sum = 0
 
+        self.parties = parties
+        self.keys = keys
+        self.private_key = private_key
+        self.indexes = indexes
+        self.message = message
+        self.server = server
+
+        self.time = None
+
     def receive(self, msg):
+        """Handles incoming data from the server while sending new data out to the server"""
         if msg['round'] == 0:
+            self.time = time.time()
             self.node_id = msg['message']
             self.num_parties = msg['num_parties']
             #end of round 0 send the first real message
             if self.recv_count == 1 and self.send_count == 1:
                 self.round_num += 1
-                self.send_message({'round' : self.round_num, 'message' : my_message}, addr=server)
+                self.send_message({'round' : self.round_num, 'message' : self.message}, addr=self.server)
                 self.recv_count = 0
                 self.send_count = 0
         else:
+            g = False
             vals = msg['message'].split('\n')
             for num in vals[:-1]:
                 #self.r1_sum += int(num) #THIS CHANGES WITH ENCRYPTION OR NOT
-                self.r1_sum += decrypt(num)
-
-            if self.recv_count == 1:
+                self.r1_sum += decrypt(num, self.private_key, self.keys)
+                g = True
+            if self.recv_count == 1 or g:
                 self.round_num += 1
                 if self.round_num != NUM_ROUNDS + 1:
-                    self.send_message({'round' : self.round_num, 'message' : my_message}, addr = server)
+                    self.send_message({'round' : self.round_num, 'message' : self.message}, addr = self.server)
                     self.recv_count = 0
                     self.send_count = 0
 
 #decrpyt the given data using our private key and the 'senders' public key
-def decrypt(data):
-
+def decrypt(data, private_key, keys):
+    """Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -> public key"""
     num = literal_eval(data)
     secret_message = base64.b64decode(num[0].encode('utf-8'))
     box = Box(private_key, keys[num[1]])
@@ -79,7 +93,7 @@ def decrypt(data):
 #read from command line and config.ini file to gather all information needed
 #prior to executing the protocol.
 def get_args():
-
+    """Returns information parsed from command line arguments and config.ini file"""
     parser = argparse.ArgumentParser(description=None);
     parser.add_argument("-H", "--hostname", action="store", required=True, help="hostname");
     parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="hostname");
@@ -132,7 +146,7 @@ def get_args():
 #of our randomly generated input. Each index corresponds to the party ID. For example
 #index 0 is the party who holds ID 0. Knowing this, we MUST encrypt value at index 0 with
 #the party member's public key who also holds ID 0.
-def build_message():
+def build_message(parties, my_ip, private_key, keys, indexes, value):
 
     msg = [-1 for i in range(len(parties))]
 
@@ -153,40 +167,46 @@ def build_message():
 
     return msg
 
-my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
+def main():
 
-server_ip = str(ipaddress.ip_address(my_ip) + 1)
-server_port = 8765 + (my_port % num_ports)
-server = (server_ip, server_port)
-client = ClientNode(my_ip, my_port)
+    my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
 
-value = random.randint(1, 10)
-#value = 1
-#shares = [1 for i in range(len(parties))] # this is only for testing
+    server_ip = str(ipaddress.ip_address(my_ip) + 1)
+    server_port = 8765 + (my_port % num_ports)
+    server = (server_ip, server_port)
 
-#add our own value prior to receiving others to get a true total sum.
-client.r1_sum += value * NUM_ROUNDS
-my_message = build_message()
-print(f"My Value: {value}")
+    #value = random.randint(1, 10)
+    value = 1
+    my_message = build_message(parties, my_ip, private_key, keys, indexes, value)
+    client = ClientNode(my_ip, my_port, parties, keys, private_key, indexes, my_message, server)
 
-start = time.time()
-try:
+    #value = 1
+    #my_message = [1 for i in range(len(parties))] # this is only for testing
 
-    #Connect to server
-    client.connect_to_node(server)
+    #add our own value prior to receiving others to get a true total sum.
+    client.r1_sum += value * NUM_ROUNDS
+    print(f"My Value: {value}")
 
-    # round 0 getting id numbers
-    client.send_message({'round' : 0, 'message' : indexes[my_ip]}, addr = server)
+    try:
 
-    # Wait until everyone is done
-    while client.round_num < NUM_ROUNDS + 1:
-        time.sleep(1)
-        continue
+        #Connect to server
+        client.connect_to_node(server)
 
-    print(f'{my_ip} sum : {client.r1_sum}')
-    print(f'it took {time.time() - start} seconds for {len(parties)} parties.')
-    sys.exit()
+        # round 0 getting id numbers
+        client.send_message({'round' : 0, 'message' : indexes[my_ip]}, addr = server)
 
-except Exception:
-    print(f'There was an error after {time.time() - start} seconds.')
-    raise Exception
+        # Wait until everyone is done
+        while client.round_num < NUM_ROUNDS + 1:
+            time.sleep(1)
+            continue
+
+        print(f'{my_ip} sum : {client.r1_sum}')
+        print(f'it took {time.time() - client.time} seconds for {len(parties)} parties.')
+        sys.exit()
+
+    except Exception:
+        print(f'There was an error after {time.time() - client.time} seconds.')
+        raise Exception
+
+if __name__ == '__main__':
+    main()

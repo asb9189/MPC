@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>summation module &#8212; star_tcp  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="simulation module" href="simulation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-summation">
+<span id="summation-module"></span><h1>summation module<a class="headerlink" href="#module-summation" title="Permalink to this headline">¶</a></h1>
+<p>summation.py is the client side script used per party member.
+First the party member creates a node object, generates a random int value and
+encrypts this value for all other party members. This node then sends the shares
+to the centeral server and waits until it completes n rounds.</p>
+<dl class="py class">
+<dt id="summation.ClientNode">
+<em class="property">class </em><code class="sig-prename descclassname">summation.</code><code class="sig-name descname">ClientNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span></em>, <em class="sig-param"><span class="n">port</span></em>, <em class="sig-param"><span class="n">parties</span></em>, <em class="sig-param"><span class="n">keys</span></em>, <em class="sig-param"><span class="n">private_key</span></em>, <em class="sig-param"><span class="n">indexes</span></em>, <em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">server</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.ClientNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="node.html#node.Node" title="node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">node.Node</span></code></a></p>
+<dl class="py method">
+<dt id="summation.ClientNode.receive">
+<code class="sig-name descname">receive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.ClientNode.receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles incoming data from the server while sending new data out to the server</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="summation.build_message">
+<code class="sig-prename descclassname">summation.</code><code class="sig-name descname">build_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parties</span></em>, <em class="sig-param"><span class="n">my_ip</span></em>, <em class="sig-param"><span class="n">private_key</span></em>, <em class="sig-param"><span class="n">keys</span></em>, <em class="sig-param"><span class="n">indexes</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.build_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="summation.decrypt">
+<code class="sig-prename descclassname">summation.</code><code class="sig-name descname">decrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">private_key</span></em>, <em class="sig-param"><span class="n">keys</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -&gt; public key</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="summation.get_args">
+<code class="sig-prename descclassname">summation.</code><code class="sig-name descname">get_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#summation.get_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information parsed from command line arguments and config.ini file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="summation.get_ip">
+<code class="sig-prename descclassname">summation.</code><code class="sig-name descname">get_ip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hostname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.get_ip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the IPv4 address of host machine given it’s desired interface hostname</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="summation.main">
+<code class="sig-prename descclassname">summation.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#summation.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">star_tcp</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">star_tcp</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="generate.html">generate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="node.html">node module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server.html">server module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation.html">simulation module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">summation module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">star_tcp</a><ul>
+      <li>Previous: <a href="simulation.html" title="previous chapter">simulation module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Aleksei Bingham.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/summation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
