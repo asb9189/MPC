@@ -27,7 +27,7 @@ parser.add_argument("-p", "--members", action="store", required=True, type=int, 
 args = parser.parse_args()
 
 num_members = args.members
-start_ip = ipaddress.ip_address("192.168.1.223")
+start_ip = ipaddress.ip_address("192.168.0.171")
 port = 8888
 
 #create config.ini and write informaton for each party seperated by [Party {ID}]

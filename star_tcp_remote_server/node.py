@@ -100,7 +100,7 @@ class Node():
                     self.sock.connect(addr)
                     total = time.time() - start
                 except Exception as e:
-                    time.sleep(1)
+                    #time.sleep(1)
                     continue
                 break
 

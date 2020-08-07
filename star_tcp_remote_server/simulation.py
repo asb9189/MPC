@@ -3,6 +3,7 @@ import subprocess
 
 parser = argparse.ArgumentParser(description=None);
 parser.add_argument("-p", "--parties", action="store", required=True, type=int, help="number of parties");
+parser.add_argument("-n", "--ports", action="store", default=10, type=int, help="number of parties");
 args = parser.parse_args();
 
 
@@ -17,7 +18,7 @@ print("Starting all nodes")
 active_parties = []
 for i in range(num_parties):
 
-    active_parties.append(subprocess.Popen(["sudo", "python3", "summation.py", "-p{}".format(port)]))
+    active_parties.append(subprocess.Popen(["sudo", "python3", "summation.py", "-p{}".format(port), "-n{}".format(args.ports)]))
     port += 1
 
 #Wait for parties to finish

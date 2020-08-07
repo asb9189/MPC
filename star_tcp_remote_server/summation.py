@@ -37,8 +37,11 @@ class ClientNode(Node):
         self.r2_sum = 0
         self.r3_sum = 0
 
+        self.time = None
+
     def receive(self, msg):
         if msg['round'] == 0:
+            self.time = time.time()
             self.node_id = msg['message']
             self.num_parties = msg['num_parties']
             #end of round 0 send the first real message
@@ -48,17 +51,21 @@ class ClientNode(Node):
                 self.recv_count = 0
                 self.send_count = 0
         else:
+            got_value = False
             vals = msg['message'].split('\n')
             for num in vals[:-1]:
                 #self.r1_sum += int(num) #THIS CHANGES WITH ENCRYPTION OR NOT
                 self.r1_sum += decrypt(num)
+                got_value = True
 
-            if self.recv_count == 1:
+            if self.recv_count == 1 or got_value:
                 self.round_num += 1
                 if self.round_num != NUM_ROUNDS + 1:
                     self.send_message({'round' : self.round_num, 'message' : my_message}, addr = server)
                     self.recv_count = 0
                     self.send_count = 0
+            else:
+                print("recv count does not equal 1")
 
 #decrpyt the given data using our private key and the 'senders' public key
 def decrypt(data):
@@ -80,7 +87,7 @@ def get_args():
     config = configparser.ConfigParser()
     args = parser.parse_args();
 
-    my_ip = "192.168.1.223"
+    my_ip = "192.168.0.171"
     my_port = args.port
 
     parties = []
@@ -148,13 +155,13 @@ my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
 #print(f"Indexes: {indexes}")
 #print(f"Number of ports: {num_ports}")
 
-server_ip = '192.168.1.100'
+server_ip = '192.168.0.199'
 server_port = 8765 + (my_port % num_ports)
 server = (server_ip, server_port)
 client = ClientNode(my_ip, my_port)
 
-value = random.randint(1, 10)
-#value = 1
+#value = random.randint(1, 10)
+value = 1
 #my_message = [1 for i in range(len(parties))] # this is only for testing
 
 #add our own value prior to receiving others to get a true total sum.
@@ -163,7 +170,6 @@ my_message = build_message()
 #print(f"msg: {my_message}")
 #print(f"My Value: {value}")
 
-start = time.time()
 try:
 
     #Connect to server
@@ -173,12 +179,17 @@ try:
     client.send_message({'round' : 0, 'message' : indexes[my_port]}, addr = server)
 
     # Wait until everyone is done
+    #debug = time.time()
     while client.round_num < NUM_ROUNDS + 1:
         #time.sleep(1)
+        #if (time.time() - debug) >= 60:
+            #print("Error: I ended with round {} when it should have been {}".format(client.round_num, NUM_ROUNDS + 1))
+            #break
         continue
 
+    #print("I connected to {}".format(server))
     print(f'{my_port} sum : {client.r1_sum}')
-    print(f'it took {time.time() - start} seconds for {len(parties)} parties.')
+    print(f'it took {time.time() - client.time} seconds for {len(parties)} parties.')
     sys.exit()
 
 except Exception:
