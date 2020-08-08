@@ -45,7 +45,8 @@ to the centeral server and waits until it completes n rounds.</p>
 <dl class="py method">
 <dt id="summation.ClientNode.receive">
 <code class="sig-name descname">receive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.ClientNode.receive" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handles incoming data from the server while sending new data out to the server</p>
+<dd><p>Handles incoming data from the server while sending new data out to the server
+:param msg: dictionary containing the current round and shares from other parties excluding round 0</p>
 </dd></dl>
 
 </dd></dl>
@@ -53,18 +54,40 @@ to the centeral server and waits until it completes n rounds.</p>
 <dl class="py function">
 <dt id="summation.build_message">
 <code class="sig-prename descclassname">summation.</code><code class="sig-name descname">build_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parties</span></em>, <em class="sig-param"><span class="n">my_ip</span></em>, <em class="sig-param"><span class="n">private_key</span></em>, <em class="sig-param"><span class="n">keys</span></em>, <em class="sig-param"><span class="n">indexes</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.build_message" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>creates an array of length parties such that each index is an encrypted version
+of our randomly generated input. Each index corresponds to the party ID. For example
+index 0 is the party who holds ID 0. Knowing this, we MUST encrypt value at index 0 with
+the party member’s public key who also holds ID 0.
+:param parties: List of all party members
+:param my_ip: Client side IP
+:param private_key: Client side private key
+:param keys: hashtable IPv4 -&gt; Public Key
+:param indexes: Hashtable IPv4 -&gt; Server Index
+:param value: Value (share) to be encrypted for all other party members
+:return: encrypted message contaning n number of encrypted shares for n party members on the network</p>
+</dd></dl>
 
 <dl class="py function">
 <dt id="summation.decrypt">
 <code class="sig-prename descclassname">summation.</code><code class="sig-name descname">decrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">private_key</span></em>, <em class="sig-param"><span class="n">keys</span></em><span class="sig-paren">)</span><a class="headerlink" href="#summation.decrypt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -&gt; public key</p>
+<dd><p>Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -&gt; public key
+:param data: encrypted data (share) from another party
+:param private_key: the recieving nodes private key used to unencrypt the my_message
+:param keys: dictionary of IPv4 -&gt; Public key
+:return: unencrypted data</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="summation.get_args">
 <code class="sig-prename descclassname">summation.</code><code class="sig-name descname">get_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#summation.get_args" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns information parsed from command line arguments and config.ini file</p>
+<dd><p>Returns information parsed from command line arguments and config.ini file
+:return: client IPv4 on the network
+:return: client port
+:return: list of all party members parsed out from config.ini file
+:return: hashtable called keys mapping IPv4 -&gt; Public Key
+:return: private_key
+:return: hashtable of IPv4 -&gt; Server Index (Used on server side)
+:return: number of open ports on the server</p>
 </dd></dl>
 
 <dl class="py function">

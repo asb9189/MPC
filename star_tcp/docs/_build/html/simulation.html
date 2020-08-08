@@ -42,12 +42,17 @@ start_protocol() is called.</p>
 <dl class="py function">
 <dt id="simulation.ping_all">
 <code class="sig-prename descclassname">simulation.</code><code class="sig-name descname">ping_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#simulation.ping_all" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Tests connectivity for each node pinging node -&gt; server and server -&gt; node.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt id="simulation.start_protocol">
 <code class="sig-prename descclassname">simulation.</code><code class="sig-name descname">start_protocol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#simulation.start_protocol" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>After generate.py is executed the server is started up. After sleeping for 5 seconds
+each node executes summation.py -H[Hostname] -P[number of parties].
+We then wait for all party members to finish computation before ending the simulation
+printing both party and server output.</p>
+</dd></dl>
 
 </div>
 

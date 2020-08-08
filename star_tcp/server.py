@@ -10,7 +10,7 @@ import socket
 
 NUM_PORTS = None
 NUM_PARTIES = None
-NUM_ROUNDS = None
+NUM_ROUNDS = 2
 
 class CentralServer(Node):
 
@@ -141,9 +141,6 @@ def main():
     parser.add_argument("-H", "--hosts", action="store", required=True, type=int, help="number of parties");
     parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="number of open ports");
     args = parser.parse_args();
-
-    global NUM_ROUNDS
-    NUM_ROUNDS = 1
 
     global NUM_PARTIES
     NUM_PARTIES = args.hosts

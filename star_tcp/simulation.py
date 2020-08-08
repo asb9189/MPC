@@ -1,12 +1,12 @@
 
 #Author: Aleksei Bingham
 
-'''
+"""
 simulation.py creates p number of parties (mininet hosts)
 with an extra host being created and treated as the centeral server. All nodes
 are directly connected to this centeral server and once all connections are establed
 start_protocol() is called.
-'''
+"""
 
 
 import warnings
@@ -27,6 +27,8 @@ import sys
 #server -> node
 #only used for testing
 def ping_all():
+
+    """Tests connectivity for each node pinging node -> server and server -> node."""
 
     server = net.hosts[len(net.hosts) - 1]
 
@@ -63,11 +65,15 @@ def ping_all():
         output('\n')
         server_index += 1
 
-#after generate.py is executed the server is started up. After sleeping for 5 seconds
-#each node executes summation.py -H[Hostname] -P[number of parties].
-#We then wait for all party members to finish computation before ending the simulation
-#printing both party and server output.
+
 def start_protocol():
+
+    """
+    After generate.py is executed the server is started up. After sleeping for 5 seconds
+    each node executes summation.py -H[Hostname] -P[number of parties].
+    We then wait for all party members to finish computation before ending the simulation
+    printing both party and server output.
+    """
 
     print("Starting Server")
     net.hosts[len(net.hosts)-1].sendCmd("sudo python3 server.py -H{} -P{}".format(len(net.hosts)-1, num_ports))
@@ -99,6 +105,12 @@ def start_protocol():
         index += 1;
 
 if __name__ == '__main__':
+
+    """
+    Starts the mininet simultation by creating n number of nodes and an additional node
+    that acts as the server. After call nodes are created start_protocol() is called
+    starting the MPC computation.
+    """
 
     parser = argparse.ArgumentParser(description=None)
     parser.add_argument("-p", "--parties", action="store", required=True, type=int, help="number of parties")
@@ -144,6 +156,7 @@ if __name__ == '__main__':
 
         host.intf('%s-eth0'%host.name).setIP(str(start_ip), 24)
         server.intf('s0-eth{}'.format(str(index))).setIP(str(server_start_ip), 24)
+
         #print(f"Created host {host.name} with IP {str(start_ip)}")
         #print(f"Created server {server.name} with IP {str(server_start_ip)}\n")
 

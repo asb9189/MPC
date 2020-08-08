@@ -43,13 +43,23 @@ in a database. This method saves time and allows us to run the simulation with �
 <dl class="py function">
 <dt id="generate.convert_key_to_string">
 <code class="sig-prename descclassname">generate.</code><code class="sig-name descname">convert_key_to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#generate.convert_key_to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>turn the given PyNaCl key into a string format of utf-8</p>
+<dd><p>Turns the given PyNaCl key into a string format of utf-8</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – PyNaCl public / private key</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String representation of PyNaCl key</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="generate.main">
 <code class="sig-prename descclassname">generate.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#generate.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a file called config.ini in the configs directory. This file
+includes information about all other nodes such as IP, PORT, and their Public and Private Key.</p>
+</dd></dl>
 
 </div>
 

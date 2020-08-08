@@ -1,14 +1,13 @@
 
 #Author: Aleksei Bingham
 
-'''
+"""
 generate.py creates the config.ini file found in the configs directory.
 This files contain important information for each client such as their public / private key,
 IP, ID, and Port. Every party member recieves one of these config.ini files and while it does
 give everyone access to everyone elses private key this issue can easily be solved by storing public keys
 in a database. This method saves time and allows us to run the simulation with 'pre-generated' keys.
-'''
-
+"""
 
 import nacl.utils
 from nacl.public import PrivateKey, PublicKey
@@ -17,13 +16,21 @@ import argparse
 import ipaddress
 
 def convert_key_to_string(key):
-    '''turn the given PyNaCl key into a string format of utf-8'''
+    """Turns the given PyNaCl key into a string format of utf-8
+
+    :param key: PyNaCl public / private key
+
+    :return: String representation of PyNaCl key
+
+    """
 
     return key.encode(encoder=nacl.encoding.Base64Encoder).decode('utf-8')
 
 def main():
-    
-    #command line arguments for the number of parties
+
+    """Creates a file called config.ini in the configs directory. This file
+    includes information about all other nodes such as IP, PORT, and their Public and Private Key.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--members", action="store", required=True, type=int, default=0, help="party size")
     args = parser.parse_args()

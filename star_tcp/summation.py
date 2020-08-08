@@ -29,7 +29,7 @@ from nacl.public import PrivateKey, PublicKey, Box
 from nacl.encoding import Base64Encoder
 
 
-NUM_ROUNDS = 1
+NUM_ROUNDS = 2
 
 #use our hostnae to determine our IP on the network
 def get_ip(hostname):
@@ -55,7 +55,9 @@ class ClientNode(Node):
         self.time = None
 
     def receive(self, msg):
-        """Handles incoming data from the server while sending new data out to the server"""
+        """Handles incoming data from the server while sending new data out to the server
+        :param msg: dictionary containing the current round and shares from other parties excluding round 0
+        """
         if msg['round'] == 0:
             self.time = time.time()
             self.node_id = msg['message']
@@ -67,13 +69,13 @@ class ClientNode(Node):
                 self.recv_count = 0
                 self.send_count = 0
         else:
-            g = False
+            got_data = False #Bandage fix for self.recv_count issue with large parties
             vals = msg['message'].split('\n')
             for num in vals[:-1]:
                 #self.r1_sum += int(num) #THIS CHANGES WITH ENCRYPTION OR NOT
                 self.r1_sum += decrypt(num, self.private_key, self.keys)
-                g = True
-            if self.recv_count == 1 or g:
+                got_data = True
+            if self.recv_count == 1 or got_data:
                 self.round_num += 1
                 if self.round_num != NUM_ROUNDS + 1:
                     self.send_message({'round' : self.round_num, 'message' : self.message}, addr = self.server)
@@ -82,7 +84,12 @@ class ClientNode(Node):
 
 #decrpyt the given data using our private key and the 'senders' public key
 def decrypt(data, private_key, keys):
-    """Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -> public key"""
+    """Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -> public key
+    :param data: encrypted data (share) from another party
+    :param private_key: the recieving nodes private key used to unencrypt the my_message
+    :param keys: dictionary of IPv4 -> Public key
+    :return: unencrypted data
+    """
     num = literal_eval(data)
     secret_message = base64.b64decode(num[0].encode('utf-8'))
     box = Box(private_key, keys[num[1]])
@@ -93,7 +100,15 @@ def decrypt(data, private_key, keys):
 #read from command line and config.ini file to gather all information needed
 #prior to executing the protocol.
 def get_args():
-    """Returns information parsed from command line arguments and config.ini file"""
+    """Returns information parsed from command line arguments and config.ini file
+    :return: client IPv4 on the network
+    :return: client port
+    :return: list of all party members parsed out from config.ini file
+    :return: hashtable called keys mapping IPv4 -> Public Key
+    :return: private_key
+    :return: hashtable of IPv4 -> Server Index (Used on server side)
+    :return: number of open ports on the server
+    """
     parser = argparse.ArgumentParser(description=None);
     parser.add_argument("-H", "--hostname", action="store", required=True, help="hostname");
     parser.add_argument("-P", "--ports", action="store", required=True, type=int, help="hostname");
@@ -142,11 +157,22 @@ def get_args():
 
     return my_ip, my_port, parties, keys, private_key, indexes, num_ports
 
-#create an array of length parties such that each index is an encrypted version
-#of our randomly generated input. Each index corresponds to the party ID. For example
-#index 0 is the party who holds ID 0. Knowing this, we MUST encrypt value at index 0 with
-#the party member's public key who also holds ID 0.
+
 def build_message(parties, my_ip, private_key, keys, indexes, value):
+
+    """
+    creates an array of length parties such that each index is an encrypted version
+    of our randomly generated input. Each index corresponds to the party ID. For example
+    index 0 is the party who holds ID 0. Knowing this, we MUST encrypt value at index 0 with
+    the party member's public key who also holds ID 0.
+    :param parties: List of all party members
+    :param my_ip: Client side IP
+    :param private_key: Client side private key
+    :param keys: hashtable IPv4 -> Public Key
+    :param indexes: Hashtable IPv4 -> Server Index
+    :param value: Value (share) to be encrypted for all other party members
+    :return: encrypted message contaning n number of encrypted shares for n party members on the network
+    """
 
     msg = [-1 for i in range(len(parties))]
 
