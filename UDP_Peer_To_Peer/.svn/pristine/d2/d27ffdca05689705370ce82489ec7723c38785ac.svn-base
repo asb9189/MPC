@@ -1,0 +1,153 @@
+from node import Node
+import time
+import sys
+import threading
+import random
+import socket
+import argparse
+import configparser
+import os
+
+#networking libary
+import netifaces as ni
+
+#crypto libary
+import nacl.utils
+from nacl.public import PrivateKey, PublicKey, Box
+from nacl.encoding import Base64Encoder
+
+
+def get_ip(hostname):
+    ni.ifaddresses(hostname + '-eth0')
+    return ni.ifaddresses(hostname + '-eth0')[ni.AF_INET][0]['addr']
+
+def get_args():
+
+    # Parse command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-H", "--hostname", action="store", required=True, help="hostname")
+    args = parser.parse_args()
+    config = configparser.ConfigParser()
+    path = sys.path[0] + "/configs/config.ini"
+    config.read_file(open(path))
+
+    my_ip = get_ip(args.hostname)
+    my_port = 8700  # default
+    parties = []
+
+    keys = {}
+    private_key = None
+
+    # parse out the config.ini file
+    for section in config.sections():
+        temp_host = None
+        for (key, val) in config.items(section):
+            if key == "host":
+                temp_host = val
+            elif key == "port":
+                # not our ip
+                if not temp_host == my_ip:
+                    parties.append((temp_host, int(val)))
+                # our ip
+                else:
+                    parties.append((temp_host, int(val)))
+                    my_port = int(val)
+
+            elif key == "public" and temp_host != my_ip:
+
+                keys[temp_host] = PublicKey(val.encode(), encoder=nacl.encoding.Base64Encoder)
+
+            elif key == "private" and temp_host == my_ip:
+
+                private_key = PrivateKey(val.encode(), encoder=nacl.encoding.Base64Encoder)
+
+    return my_ip, my_port, parties, keys, private_key, args.hostname
+
+class SummationNode(Node):
+    def __init__(self, host, port):
+        super().__init__(False, host, port)
+        self.r1_received = 0
+        self.mysum1 = 1
+        self.done = False
+        self.done_messages = 0
+        self.leader = False
+
+        self.sent_done = False
+
+    def receive(self, message, conn = None, addr_list = None):
+
+        #self.r1_received >= 0.9 * len(party_list)
+
+        # This is a round 1 message
+        if message['round'] == 1:
+
+            self.mysum1 = self.mysum1 + message['val']
+            self.r1_received = self.r1_received + 1
+            
+            if self.r1_received == len(party_list) - 1 and not self.leader:
+                
+                #send done message (round -1) to group leader
+                self.send_done()
+                self.sent_done = True
+
+            elif self.r1_received == len(party_list) - 1 and self.leader:
+
+                #leader dosent actually send 'done' messages
+                self.sent_done = True
+
+
+        elif self.leader and message['round'] == -1:
+
+            self.done_messages = self.done_messages + 1
+
+            if self.done_messages == len(party_list) - 1 and self.sent_done:
+
+                #tell everyone to shutdown with round == -2
+                self.send_shutdown()
+                self.done = True
+
+        elif message['round'] == -2:
+
+            self.done = True
+
+    # kick off round 1
+    def start(self):
+        send_process = threading.Thread(target = self.send_round1)
+        send_process.daemon = True
+        send_process.start()
+
+    def send_round1(self):
+        for c in party_list:
+            msg = {'round': 1, 'val': 1}
+            self.send_message(msg, [c])
+
+    def send_done(self):
+        for c in party_list:
+            msg = {'round': -1}
+            self.send_message(msg, [c])
+
+    def send_shutdown(self):
+        for c in party_list:
+            msg = {'round': -2}
+            self.send_message(msg, [c])
+
+my_ip, my_port, party_list, keys, private_key, hostname = get_args()
+my_node = SummationNode(my_ip, my_port)
+
+#check if we are party leader
+if hostname == 'h1':
+    my_node.leader = True
+
+# Give everyone the chance to construct themselfs
+time.sleep(5)
+my_node.start()
+
+start = time.time()
+
+# Wait until everyone is done
+while not my_node.done:
+    continue
+
+print("Sum " + str(my_node.mysum1))
+    
+print(f"Finished in {time.time() - start} seconds")

@@ -1,0 +1,113 @@
+import warnings
+warnings.filterwarnings("ignore")
+
+from mininet.net import Mininet
+from mininet.log import output
+from mininet.cli import CLI
+import subprocess
+import argparse
+import ipaddress
+import time
+import sys
+
+def ping_all():
+
+    # Ping forward and backward nodes
+    for i in range(0,num_nodes):
+
+        current_node = net.hosts[i]
+
+        for j in range(0, num_nodes):
+
+            next_node = net.hosts[j]
+
+            if current_node == next_node:
+                continue
+
+        
+            next_node_ip = next_node.IP('%s-eth0'%next_node.name)
+        
+            result = current_node.cmd('ping -c1 %s'%next_node_ip)
+            sent, received = net._parsePing(result)
+
+            output(('%s '%next_node.name) if received else 'X ')
+            output('\n')
+
+def start_protocol():
+
+    command = "python3 summation.py -H {}"
+
+    start = time.time()
+    index = 0
+    for p in net.hosts:
+
+        if index == len(net.hosts) - 1:
+            p.sendCmd(command.format(p.name));
+
+            print("Started all parties\n")
+            for m in (net.hosts)[::-1]:
+                print(m.waitOutput());
+
+        else:
+            p.sendCmd(command.format(p.name));
+        
+        index += 1;
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description=None);
+    parser.add_argument("-p", "--parties", action="store", required=True, type=int, help="number of parties");
+    args = parser.parse_args();
+    num_nodes = args.parties;
+
+    if num_nodes <= 1:
+        print("Error: Illegal Number of Parties {}".format(num_nodes))
+        sys.exit()
+
+    print("Running generate.py -p{}".format(num_nodes))
+    subprocess.Popen(["sudo", "python3", "generate.py", "-p{}".format(num_nodes)]).wait()
+    print("Finished generating config files")
+    net = Mininet()
+    print("Starting Simulation")
+    
+    start = time.time()
+
+    start_ip = ipaddress.ip_address("10.0.0.1")
+    #switch_start_ip = ipaddress.ip_address("10.0.1.2")
+
+    c0 = net.addController()
+
+    # Create the nodes without an ip
+    for i in range(1,num_nodes+1): 
+        net.addHost('h%d'%i,ip=None)
+
+    # Create the switch
+    switch = net.addSwitch('s0')
+
+    # Connect each host to the switch
+    index = 0
+    for host in net.hosts: 
+
+        #net.addLink(host, switch)
+        net.addLink(host, switch, intfName1 = '%s-eth0'%host.name, intfName2 = 's0-eth{}'.format(str(index)))
+        host.setIP(str(start_ip))
+
+        index += 1
+        start_ip += 1
+        
+    print("Created {} nodes in {} seconds".format(num_nodes, time.time() - start))
+
+    net.start()
+
+    start = time.time()
+
+    #CLI(net)
+
+    start_protocol()
+    #net.pingAll()
+
+    end = time.time()
+
+    print("Total Time: {} seconds".format(end - start))
+
+    net.stop()
