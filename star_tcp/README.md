@@ -44,5 +44,5 @@ sudo mn -c
 ## Authors
 
 * **Aleksei Bingham** - simulation.py, summation.py, generate.py
-* **Joe Near** - node.py, constants.py
-* **Zachary Ward** - node.py, constants.py
+* **Joe Near** - node.py, server.py, constants.py
+* **Zachary Ward** - node.py, server.py, constants.py
