@@ -28,8 +28,8 @@ import nacl.utils
 from nacl.public import PrivateKey, PublicKey, Box
 from nacl.encoding import Base64Encoder
 
-
-NUM_ROUNDS = 2
+#Edit this to change number of rounds in both summation.py and server.py
+NUM_ROUNDS = 1
 
 #use our hostnae to determine our IP on the network
 def get_ip(hostname):
@@ -41,17 +41,32 @@ def get_ip(hostname):
 class ClientNode(Node):
     def __init__(self, host, port, parties, keys, private_key, indexes, message, server):
         super().__init__(False, host, port)
+
+        #round sums
         self.r1_sum = 0
         self.r2_sum = 0
         self.r3_sum = 0
 
+        #list of party members
         self.parties = parties
+
+        #Hashtable IP -> Public Key
         self.keys = keys
+
+        #My private key
         self.private_key = private_key
+
+        #Hashtable IP -> Server Index
         self.indexes = indexes
+
+        #Message to be sent
+        #this might need to be changed with functionalities
         self.message = message
+
+        #Tuple of server info (ip:port)
         self.server = server
 
+        #Start time of node computation
         self.time = None
 
     def receive(self, msg):
@@ -72,7 +87,7 @@ class ClientNode(Node):
             got_data = False #Bandage fix for self.recv_count issue with large parties
             vals = msg['message'].split('\n')
             for num in vals[:-1]:
-                #self.r1_sum += int(num) #THIS CHANGES WITH ENCRYPTION OR NOT
+                #self.r1_sum += int(num) #Only use when encryption is not being used
                 self.r1_sum += decrypt(num, self.private_key, self.keys)
                 got_data = True
             if self.recv_count == 1 or got_data:
@@ -195,24 +210,24 @@ def build_message(parties, my_ip, private_key, keys, indexes, value):
 
 def main():
 
+    #values read by config.ini file and command line argumnts
     my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
 
+    #calculate the server ip based on our own and determine what port we will connect too
     server_ip = str(ipaddress.ip_address(my_ip) + 1)
     server_port = 8765 + (my_port % num_ports)
     server = (server_ip, server_port)
 
     #value = random.randint(1, 10)
-    value = 1
+    value = 1 #Used for debugging as total sum == number of parties
     my_message = build_message(parties, my_ip, private_key, keys, indexes, value)
     client = ClientNode(my_ip, my_port, parties, keys, private_key, indexes, my_message, server)
 
-    #value = 1
-    #my_message = [1 for i in range(len(parties))] # this is only for testing
-
     #add our own value prior to receiving others to get a true total sum.
-    client.r1_sum += value * NUM_ROUNDS
+    client.r1_sum += value * NUM_ROUNDS #mul by NUM_ROUNDS to account for additional rounds
     print(f"My Value: {value}")
 
+    ptime = time.process_time()
     try:
 
         #Connect to server
@@ -228,6 +243,7 @@ def main():
 
         print(f'{my_ip} sum : {client.r1_sum}')
         print(f'it took {time.time() - client.time} seconds for {len(parties)} parties.')
+        print(f'processor time: {time.process_time() - ptime}')
         sys.exit()
 
     except Exception:

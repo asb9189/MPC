@@ -87,7 +87,7 @@ def get_args():
     config = configparser.ConfigParser()
     args = parser.parse_args();
 
-    my_ip = "192.168.0.171"
+    my_ip = "192.168.1.223"
     my_port = args.port
 
     parties = []
@@ -155,7 +155,7 @@ my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
 #print(f"Indexes: {indexes}")
 #print(f"Number of ports: {num_ports}")
 
-server_ip = '192.168.0.199'
+server_ip = '192.168.1.223'
 server_port = 8765 + (my_port % num_ports)
 server = (server_ip, server_port)
 client = ClientNode(my_ip, my_port)
