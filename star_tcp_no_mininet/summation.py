@@ -6,6 +6,8 @@ summation.py is the client side script used per party member.
 First the party member creates a node object, generates a random int value and
 encrypts this value for all other party members. This node then sends the shares
 to the centeral server and waits until it completes n rounds.
+
+NOTE: You will need to change the IP of the server and the IP of the machine that runs this script in the code below.
 '''
 
 import netifaces as ni
@@ -87,7 +89,7 @@ def get_args():
     config = configparser.ConfigParser()
     args = parser.parse_args();
 
-    my_ip = "192.168.1.223"
+    my_ip = "192.168.1.223" #CHANGE ME
     my_port = args.port
 
     parties = []
@@ -155,7 +157,7 @@ my_ip, my_port, parties, keys, private_key, indexes, num_ports = get_args()
 #print(f"Indexes: {indexes}")
 #print(f"Number of ports: {num_ports}")
 
-server_ip = '192.168.1.223'
+server_ip = '192.168.1.223' #CHANGE ME
 server_port = 8765 + (my_port % num_ports)
 server = (server_ip, server_port)
 client = ClientNode(my_ip, my_port)

@@ -1,48 +1,24 @@
 # TCP Star Topology MPC Simulation
 
 A mininet simulation to showcase MPC with a large number of parties following the star topology
+with one machine acting as an isolated server and another hosting all nodes (without mininet).
 
+# Prerequisites
 
-### Prerequisites
+You will have to change the Server IP and Client IP inside of summation.py and server.py
 
-* Python3 (Python 3.8 was used)
-
-* Pip3 (used to install missing packages. Example: pip3 install pynacl)
-
-* Mininet
-
-	See official website for instructions
-
-	Note: I used 'Option 2: Native Installation from Source'
-
-	http://mininet.org/download/
+Also, Editing the number of desired rounds takes place in both summation.py and server.py
 
 ## Running the Simulation
+
+Execute the client side script with
 
 ```
 sudo python3 simulation.py -p [number of parties] -n [number of open ports on server side]
 ```
 
-if '-n' is not given it will default to 10.
-
-Note: sudo is required for mininet
-
-## Fixing Error on Launch
-
-If the program halts unexpectedly during execution run the following command
+Then execute server side script with
 
 ```
-sudo mn -c
+sudo python3 server.py -H [number of parties] -P [number of open ports on server side]
 ```
-**If this is not executed after an error occurred you may see errors when trying to restart the simulation**
-
-
-## Built With
-
-* [Mininet](http://www.mininet.org) - The simulation framework
-
-## Authors
-
-* **Aleksei Bingham** - simulation.py, summation.py, generate.py
-* **Joe Near** - node.py, constants.py
-* **Zachary Ward** - node.py, constants.py

@@ -2,6 +2,8 @@ import argparse
 import subprocess
 import time
 
+"""Spawns p number of subprocess that act as hosts (without mininet)."""
+
 parser = argparse.ArgumentParser(description=None);
 parser.add_argument("-p", "--parties", action="store", required=True, type=int, help="number of parties");
 parser.add_argument("-n", "--ports", action="store", default=10, type=int, help="number of parties");
