@@ -5,8 +5,12 @@
 generate.py creates the config.ini file found in the configs directory.
 This files contain important information for each client such as their public / private key,
 IP, ID, and Port. Every party member recieves one of these config.ini files and while it does
-give everyone access to everyone elses private key this issue can easily be solved by storing public keys
+give everyone access to everyone elses private key this issue can easily be solved by storing public / priate keys
 in a database. This method saves time and allows us to run the simulation with 'pre-generated' keys.
+
+Also, generate.py can be found across all simulations in this repository. There are minor tweaks and changes
+depending on how the simulation is run (with or without mininet or single vs distributed network). Because of this,
+I did not document each individual generate.py script. Understanding this will allow you to understand all of them.
 """
 
 import nacl.utils

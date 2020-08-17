@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>generate module &#8212; star_tcp  documentation</title>
+    <title>simulation module &#8212; star_tcp  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -15,8 +15,8 @@
     <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="node module" href="node.html" />
-    <link rel="prev" title="star_tcp" href="modules.html" />
+    <link rel="next" title="summation module" href="summation.html" />
+    <link rel="prev" title="server module" href="server.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,35 +33,25 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-generate">
-<span id="generate-module"></span><h1>generate module<a class="headerlink" href="#module-generate" title="Permalink to this headline">¶</a></h1>
-<p>generate.py creates the config.ini file found in the configs directory.
-This files contain important information for each client such as their public / private key,
-IP, ID, and Port. Every party member recieves one of these config.ini files and while it does
-give everyone access to everyone elses private key this issue can easily be solved by storing public / priate keys
-in a database. This method saves time and allows us to run the simulation with ‘pre-generated’ keys.</p>
-<p>Also, generate.py can be found across all simulations in this repository. There are minor tweaks and changes
-depending on how the simulation is run (with or without mininet or single vs distributed network). Because of this,
-I did not document each individual generate.py script. Understanding this will allow you to understand all of them.</p>
+  <div class="section" id="module-simulation">
+<span id="simulation-module"></span><h1>simulation module<a class="headerlink" href="#module-simulation" title="Permalink to this headline">¶</a></h1>
+<p>simulation.py creates p number of parties (mininet hosts)
+with an extra host being created and treated as the centeral server. All nodes
+are directly connected to this centeral server and once all connections are establed
+start_protocol() is called.</p>
 <dl class="py function">
-<dt id="generate.convert_key_to_string">
-<code class="sig-prename descclassname">generate.</code><code class="sig-name descname">convert_key_to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#generate.convert_key_to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns the given PyNaCl key into a string format of utf-8</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>key</strong> – PyNaCl public / private key</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>String representation of PyNaCl key</p>
-</dd>
-</dl>
+<dt id="simulation.ping_all">
+<code class="sig-prename descclassname">simulation.</code><code class="sig-name descname">ping_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#simulation.ping_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests connectivity for each node pinging node -&gt; server and server -&gt; node.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="generate.main">
-<code class="sig-prename descclassname">generate.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#generate.main" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a file called config.ini in the configs directory. This file
-includes information about all other nodes such as IP, PORT, and their Public and Private Key.</p>
+<dt id="simulation.start_protocol">
+<code class="sig-prename descclassname">simulation.</code><code class="sig-name descname">start_protocol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#simulation.start_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>After generate.py is executed the server is started up. After sleeping for 5 seconds
+each node executes summation.py -H[Hostname] -P[number of parties].
+We then wait for all party members to finish computation before ending the simulation
+printing both party and server output.</p>
 </dd></dl>
 
 </div>
@@ -86,10 +76,10 @@ includes information about all other nodes such as IP, PORT, and their Public an
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">star_tcp</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">generate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html">generate module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="node.html">node module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="server.html">server module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulation.html">simulation module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">simulation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="summation.html">summation module</a></li>
 </ul>
 </li>
@@ -100,8 +90,8 @@ includes information about all other nodes such as IP, PORT, and their Public an
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="modules.html">star_tcp</a><ul>
-      <li>Previous: <a href="modules.html" title="previous chapter">star_tcp</a></li>
-      <li>Next: <a href="node.html" title="next chapter">node module</a></li>
+      <li>Previous: <a href="server.html" title="previous chapter">server module</a></li>
+      <li>Next: <a href="summation.html" title="next chapter">summation module</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -136,7 +126,7 @@ includes information about all other nodes such as IP, PORT, and their Public an
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/generate.rst.txt"
+      <a href="_sources/simulation.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

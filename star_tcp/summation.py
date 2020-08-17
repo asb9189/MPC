@@ -33,7 +33,11 @@ NUM_ROUNDS = 1
 
 #use our hostnae to determine our IP on the network
 def get_ip(hostname):
-    """Returns the IPv4 address of host machine given it's desired interface hostname"""
+    """Returns the IPv4 address of host machine given it's desired interface hostname
+
+    :return: IP of mininet host
+
+    """
 
     ni.ifaddresses(hostname + '-eth0')
     return ni.ifaddresses(hostname + '-eth0')[ni.AF_INET][0]['addr']
@@ -71,7 +75,9 @@ class ClientNode(Node):
 
     def receive(self, msg):
         """Handles incoming data from the server while sending new data out to the server
+
         :param msg: dictionary containing the current round and shares from other parties excluding round 0
+
         """
         if msg['round'] == 0:
             self.time = time.time()
@@ -100,10 +106,15 @@ class ClientNode(Node):
 #decrpyt the given data using our private key and the 'senders' public key
 def decrypt(data, private_key, keys):
     """Decrpyts data encrypted using PyNaCl given a private key and hashtable of IPv4 -> public key
+
     :param data: encrypted data (share) from another party
+
     :param private_key: the recieving nodes private key used to unencrypt the my_message
+
     :param keys: dictionary of IPv4 -> Public key
+
     :return: unencrypted data
+
     """
     num = literal_eval(data)
     secret_message = base64.b64decode(num[0].encode('utf-8'))
@@ -116,13 +127,21 @@ def decrypt(data, private_key, keys):
 #prior to executing the protocol.
 def get_args():
     """Returns information parsed from command line arguments and config.ini file
+
     :return: client IPv4 on the network
+
     :return: client port
+
     :return: list of all party members parsed out from config.ini file
+
     :return: hashtable called keys mapping IPv4 -> Public Key
+
     :return: private_key
+
     :return: hashtable of IPv4 -> Server Index (Used on server side)
+
     :return: number of open ports on the server
+
     """
     parser = argparse.ArgumentParser(description=None);
     parser.add_argument("-H", "--hostname", action="store", required=True, help="hostname");
@@ -180,13 +199,21 @@ def build_message(parties, my_ip, private_key, keys, indexes, value):
     of our randomly generated input. Each index corresponds to the party ID. For example
     index 0 is the party who holds ID 0. Knowing this, we MUST encrypt value at index 0 with
     the party member's public key who also holds ID 0.
+
     :param parties: List of all party members
+
     :param my_ip: Client side IP
+
     :param private_key: Client side private key
+
     :param keys: hashtable IPv4 -> Public Key
+
     :param indexes: Hashtable IPv4 -> Server Index
+
     :param value: Value (share) to be encrypted for all other party members
+
     :return: encrypted message contaning n number of encrypted shares for n party members on the network
+    
     """
 
     msg = [-1 for i in range(len(parties))]

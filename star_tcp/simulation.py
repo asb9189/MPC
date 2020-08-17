@@ -22,10 +22,6 @@ import time
 import sys
 
 
-#Try to ping:
-#node -> server
-#server -> node
-#only used for testing
 def ping_all():
 
     """Tests connectivity for each node pinging node -> server and server -> node."""
