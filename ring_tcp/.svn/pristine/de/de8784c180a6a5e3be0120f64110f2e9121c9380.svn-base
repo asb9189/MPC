@@ -1,0 +1,24 @@
+[Party 0]
+host = 10.0.4.2
+port = 8700
+public = ZlLtDPEaAIbuolO3Dv3MTx4638KSrGUhoRxkQKN7lRc=
+private = MXgC2olRHLAh0PYT5IQKtwi8MRFUDImrWI4ViKCzZNs=
+
+[Party 1]
+host = 10.0.1.1
+port = 8700
+public = Sy8nMvI2mB21i4BIaPEg7Nc53X/4eDvlVQCYRnXe4UM=
+private = /upshTgjlN6ihdVV8udE60cAtYeWQueXkJ6SaPg4c2k=
+
+[Party 2]
+host = 10.0.2.1
+port = 8700
+public = ESUXbfhTEj3PytwVljZ5HIpG0cmbgiRs9tMWvl71uRA=
+private = slTblosJ6tscpIL7yToSsbA7s+FZlznukn+dV/CxgoA=
+
+[Party 3]
+host = 10.0.3.1
+port = 8700
+public = 8G8/p7PVfVm2KJoRV5Q/0uQ5eEKgozXrwalL8WEmtn4=
+private = CUNzN2TYMw/V2bdxlWOrQheUW5XQO84oR15oqbR5dPI=
+
