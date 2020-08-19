@@ -1,6 +1,6 @@
-# Docker-Free Simulation for Secure Federated Learning
+# MPC Simulation Ring TCP
 
-A mininet simulation to showcase MPC with a large number of parties
+A mininet simulation to showcase MPC with a large number of parties following the ring topology with TCP
 
 
 ### Prerequisites
